@@ -10,30 +10,30 @@ apt-get install -y vim && \
 apt-get install -y openjdk-8-jdk
 
 # ADD GRADLE
-ADD https://services.gradle.org/distributions/gradle-2.4-all.zip /opt/
-RUN unzip /opt/gradle-2.4-all.zip -d /opt/gradle
-ENV GRADLE_HOME /opt/gradle/gradle-2.4-all
+ADD https://services.gradle.org/distributions/gradle-5.4.1-all.zip /opt/
+RUN unzip /opt/gradle-5.4.1-all.zip -d /opt/gradle
+ENV GRADLE_HOME /opt/gradle/gradle-5.4.1-all
 ENV PATH $GRADLE_HOME/bin:$PATH
 
 # Add Android SDK
 ## Source https://developer.android.com/studio/index.html
-RUN wget --progress=dot:giga https://dl.google.com/android/android-sdk_r24.4.1-linux.tgz && \
-    mv android-sdk_r24.4.1-linux.tgz /opt/ && \
-    cd /opt && tar xzvf ./android-sdk_r24.4.1-linux.tgz && \
-    rm -rf /opt/android-sdk_r24.4.1-linux.tgz && \
+RUN wget --progress=dot:giga https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip && \
+    mkdir /opt/android-sdk/ && \
+    mv sdk-tools-linux-4333796.zip /opt/android-sdk/ && \
+    cd /opt/android-sdk && unzip ./sdk-tools-linux-4333796.zip && \
+    rm -rf /opt/android-sdk/sdk-tools-linux-4333796.zip && \
     apt-get install gcc-multilib -y && \
     apt-get autoclean -y && \
     apt-get autoremove -y
-ENV ANDROID_HOME /opt/android-sdk-linux/
+
+ENV ANDROID_HOME /opt/android-sdk/
 ENV PATH $ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
 RUN chmod -R 755 $ANDROID_HOME
-RUN echo y | android update sdk --no-ui --all --filter "android-24"
-RUN echo y | android update sdk --no-ui --all --filter "android-25"
-RUN echo y | android update sdk --no-ui --all --filter "android-23"
-RUN echo y | android update sdk --no-ui --all --filter build-tools-26.0.2
-RUN echo y | android update sdk --no-ui --all --filter platform-tools
-RUN echo y | android update sdk --no-ui --all --filter extra-android-m2repository
-RUN echo y | android update sdk --no-ui --all --filter extra-google-m2repository
+
+RUN yes | /opt/android-sdk/tools/bin/sdkmanager --update && \
+    yes | /opt/android-sdk/tools/bin/sdkmanager --licenses && \
+    /opt/android-sdk/tools/bin/sdkmanager --list && \
+    /opt/android-sdk/tools/bin/sdkmanager "tools" "platform-tools" "platforms;android-29" "build-tools;29.0.2" "extras;android;m2repository" "extras;google;m2repository"
 
 ARG user=jenkins
 ARG group=jenkins
