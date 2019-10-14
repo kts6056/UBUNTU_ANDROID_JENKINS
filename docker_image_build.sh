@@ -1,1 +1,1 @@
-docker build -t ubuntu-jenkins .
+docker build --no-cache -t ubuntu-jenkins .
